@@ -11,7 +11,11 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --ignore-path .gitignore --fix src",
     "prettier": "prettier src --write",
-    "client:deploy": "sls client deploy --no-config-change --no-policy-change --no-cors-change"
+    "client:deploy": "sls client deploy --no-config-change --no-policy-change --no-cors-change",
+    "serverless:deploy": "sls deploy",
+    "cloudfront:invalidateCache": "sls invalidateCloudFrontCache",
+    "serverless:build:provision:deploy": "npm run build && npm run serverless:deploy && npm run client:deploy",
+    "serverless:remove": "sls remove"
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",

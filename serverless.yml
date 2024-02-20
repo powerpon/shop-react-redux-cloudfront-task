@@ -4,19 +4,21 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs14.x
   region: eu-west-1
 
 plugins:
   - serverless-finch
+  - serverless-single-page-app-plugin
 
 custom:
   client:
-    bucketName: task2-manual-bucket
+    bucketName: task2-automatic-bucket
     distributionFolder: dist
     indexDocument: index.html
     manageResources: false
   s3BucketName: ${self:custom.client.bucketName}
+  s3LocalPath: ${self:custom.client.distributionFolder}
 
 resources:
   Resources:
@@ -24,7 +26,11 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.s3BucketName}
-        AccessControl: PublicRead
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          IgnorePublicAcls: false
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
@@ -39,17 +45,7 @@ resources:
               Effect: Allow
               Action: s3:GetObject
               Resource: arn:aws:s3:::${self:custom.s3BucketName}/*
-              Principal:
-                AWS:
-                  Fn::Join:
-                    - ' '
-                    - - 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity'
-                      - !Ref OriginAccessIdentity
-    OriginAccessIdentity:
-      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-      Properties:
-        CloudFrontOriginAccessIdentityConfig:
-          Comment: Access identity between CloudFront and S3 Bucket
+              Principal: "*"
     WebAppCloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
